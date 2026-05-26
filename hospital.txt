@@ -1,0 +1,6 @@
+aariz,28,diabetes,high
+sara,45,fever,low
+john,55,hypertension,high
+mia,32,asthma,medium
+eli,19,flu,low
+reva,60,stroke,high

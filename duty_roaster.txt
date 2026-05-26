@@ -1,0 +1,4 @@
+ali,45,diabetes,high
+eli,31,fever,medium
+reva,32,mi,low
+ginn,29,uti,high

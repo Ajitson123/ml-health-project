@@ -1,40 +1,24 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
+from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
 v = pd.read_csv('diabetes.csv')
 x = v.drop('Outcome', axis=1)
 y = v['Outcome']
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 scaler = StandardScaler()
-x_scaled = scaler.fit_transform(x)
-pca = PCA()
-pca.fit(x_scaled)
-print("Explained variance ratio:")
-for i, var in enumerate(pca.explained_variance_ratio_):
-    print(f"Principal Component {i+1}: {var:.4f} {var*100:.2f}%")
-cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
-print("\nCumulative explained variance:", cumulative_variance)
-plt.figure(figsize=(8, 5))
-plt.bar(range(1, 9), pca.explained_variance_ratio_)
-plt.step(range(1, 9), cumulative_variance, where='mid', color='red', label='Cumulative Variance')
-plt.xlabel('Principal Components')
-plt.ylabel('Explained Variance Ratio')
-plt.title('PCA Explained Variance')
-plt.legend()
-plt.show()
-pca_final = PCA(n_components=0.95)
-x_pca = pca_final.fit_transform(x_scaled)
-print("\nShape of original data:", x_scaled.shape)
-print(f"reduced shape: {x_pca.shape}")
-print(f"components kept: {pca_final.n_components_}")
-pca2 = PCA(n_components=2)
-x_pca2 = pca2.fit_transform(x_scaled)
-plt.figure(figsize=(8, 6))
-plt.scatter(x_pca2[y==0, 0], x_pca2[y==0, 1], color='blue', label='No Diabetes', alpha=0.5)
-plt.scatter(x_pca2[y==1, 0], x_pca2[y==1, 1], color='orange', label='Diabetes', alpha=0.5)
-plt.xlabel('Principal Component 1')
-plt.ylabel('Principal Component 2')
-plt.title('PCA Scatter Plot')
-plt.legend()
-plt.show()
+x_train_scaled = scaler.fit_transform(x_train)
+x_test_scaled = scaler.transform(x_test)
+svm_linear = SVC(kernel='linear', C=1, random_state=42)
+svm_linear.fit(x_train_scaled, y_train)
+print("SVM Linear Accuracy:", accuracy_score(y_test, svm_linear.predict(x_test_scaled)))
+svm_rbf = SVC(kernel='rbf', C=1, random_state=42)
+svm_rbf.fit(x_train_scaled, y_train)
+print("SVM RBF Accuracy:", accuracy_score(y_test, svm_rbf.predict(x_test_scaled)))
+cv_scores = cross_val_score(svm_rbf, scaler.fit_transform(x), y, cv=10, scoring='accuracy')
+print("Cross-Validation Scores:", cv_scores)
+print("Mean CV Accuracy:", cv_scores.mean())
